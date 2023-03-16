@@ -1,0 +1,48 @@
+//for cyklus kde čtu root files a generuju histogramy
+
+for(int i = 0; i < nf; i++){
+        readfiles[i] = new TFile(fnames[i]);
+        
+        //kontrola souborů
+        
+        if (!readfiles[i] || readfiles[i]->IsZombie()){
+            std::cerr<<"error opening file"<<endl; //error control
+            return;
+        }
+        //tvorba histogramu pro energii absorbovanou v absorbéru
+        EAbs_hists[i] = (TH1D*) readfiles[i] -> Get("Eabs");
+        EAbs_hists[i]->SetLineColor(i+2);
+        
+        //tvorba histogramu pro energii absorbovanou v meziprostoru
+        Egap_hists[i] = (TH1D*) readfiles[i] -> Get("Egap");
+	
+	
+	//kopie histogramu pro energii v absorbéru, převedení na GeV (pokud jsem převedl přímo EAbs_hists[i] tak mi to pokazilo další grafy
+        hist_copy[i] = (TH1D*) EAbs_hists[i]->Clone();
+        hist_copy[i]->Draw ("hist" + dopt);
+        xmin = hist_copy[i]->GetXaxis()->GetXmin();
+        xmax = hist_copy[i]->GetXaxis()->GetXmax();
+        hist_copy[i]->GetXaxis()->SetLimits(xmin/1000, xmax/1000);
+        dopt = "same";
+        
+//generuji energii elektronů, beru absorbovanou energii v absorbéru (Einf) jako mean z histogramu EAbs_hists, její chybu error_Einf, směrodatnou odchylku Sigma a její chybu, vše převedeno na GeV
+
+double Ee[nf], Einf[nf], error_Einf[nf], Sigma[nf], error_Sigma[nf];
+
+for (int i = 0; i < nf; i++){
+        Ee[i] = (i+1) * 10;
+        Einf[i] = EAbs_hists[i] -> GetMean()/1000;
+        error_Einf[i] = EAbs_hists[i] -> GetMeanError()/1000;
+        Sigma[i] = EAbs_hists[i] -> GetStdDev()/1000;
+        error_Sigma[i] = EAbs_hists[i] -> GetStdDevError()/1000;
+    }
+
+//beru směrodatnou odchylku energie absorbované prostorem a její chybu, převádím na GeV
+
+double gapstddev[nf], gapstddeverror[nf];
+
+    for (int i = 0; i<nf; i++){
+        gapstddev[i] = Egap_hists[i]->GetStdDev()/1000;
+        gapstddeverror[i] = Egap_hists[i]->GetStdDevError()/1000;
+    }
+
