@@ -24,6 +24,7 @@ for(int i = 0; i < nf; i++){
         xmax = hist_copy[i]->GetXaxis()->GetXmax();
         hist_copy[i]->GetXaxis()->SetLimits(xmin/1000, xmax/1000);
         dopt = "same";
+        }
         
 //generuji energii elektronů, beru absorbovanou energii v absorbéru (Einf) jako mean z histogramu EAbs_hists, její chybu error_Einf, směrodatnou odchylku Sigma a její chybu, vše převedeno na GeV
 
