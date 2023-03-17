@@ -112,11 +112,13 @@ void calbatch(){
     Energy_canvas -> SaveAs("Energy_graph.pdf");
 
     //getting gap energy histogram, doing stuff with it
-    double gapstddev[nf], gapstddeverror[nf];
+    double gapstddev[nf], gapstddeverror[nf], gapEabs[nf], gapEabs_error[nf], gap_norm_y[nf], gap_norm_y_error[nf];
 
     for (int i = 0; i<nf; i++){
         gapstddev[i] = Egap_hists[i]->GetStdDev()/1000;
         gapstddeverror[i] = Egap_hists[i]->GetStdDevError()/1000;
+        gapEabs[i] = Egap_hists[i] ->GetMean()/1000;
+        gapEabs_error[i] = Egap_hists[i]->GetMeanError()/1000;
     }
 
     TString gapgraph_title = "Gap canvas";
@@ -125,10 +127,28 @@ void calbatch(){
     auto gap_graph = new TGraphErrors(nf, Ee, gapstddev, 0, gapstddeverror);
     gap_graph->SetTitle("zavislost smerodatne odchylky energie absorbovane v prostoru na energii elektronu");
     gap_graph->GetXaxis()->SetTitle("E e^{-} (GeV)");
-    gap_graph->GetYaxis()->SetTitle("E_{gap} (GeV)");
+    gap_graph->GetYaxis()->SetTitle("#sigma_{gap} (GeV)");
     gap_graph->GetYaxis()->SetRangeUser(0, 0.2);
     gap_graph->Draw("A*");
     Gap_canvas->SaveAs("gap_graph.pdf");
+
+    TCanvas* Gapenergy_canvas = new TCanvas ("gap energy", "gap energy", 1200, 800);
+    Gapenergy_canvas->cd();
+    auto gapenergy_graph = new TGraphErrors(nf, Ee, gapEabs, 0, gapEabs_error);
+    gapenergy_graph->Draw("A*");
+
+    for (int i = 0; i < nf; i++){
+        gap_norm_y[i] = gapstddev[i]/gapEabs[i];
+        gap_norm_y_error[i] = sqrt((gapstddeverror[i] * gapstddeverror[i])/(gapEabs[i]*gapEabs[i])+(gapEabs_error[i] * gapEabs_error[i])*(gapstddev[i]/(gapEabs[i]*gapEabs[i]) * (gapstddev[i]/(gapEabs[i]*gapEabs[i]))));
+    }
+    TCanvas* gap_norm_canvas = new TCanvas ("gap normallized_canvas", "gap normallized_canvas", 1200, 800);
+
+    auto gap_norm_graph = new TGraphErrors(nf, Ee, gap_norm_y, 0, gap_norm_y_error);
+    gap_norm_graph->SetTitle("Depencency of normallized StdDev on electron energy in gap");
+    gap_norm_graph->GetXaxis()->SetTitle("E e^{-} (GeV)");
+    gap_norm_graph->GetYaxis()->SetTitle("#sigma_{gap}/Egap_{dep}");
+    gap_norm_graph -> Draw("A*");
+    gap_norm_canvas -> SaveAs ("Gap_Normallized_graph.pdf");
 
     //sigma graph drawing
 
