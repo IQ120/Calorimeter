@@ -215,7 +215,7 @@ void calbatch(){
 
 
 
-    TString linfrac_fun = "1/(x*[0])";
+    TString linfrac_fun = "1/sqrt(x*[0])";
     TString linfracfun_title = "linear fraction function";
 
     auto linfrac_function = new TF1 (linfracfun_title, linfrac_fun, 0, 50);
@@ -232,7 +232,7 @@ void calbatch(){
 
     auto legend4 = new TLegend(0.7,0.8,0.9,0.9);
     legend4->AddEntry("gap_norm_graph", "data s chybou", "ep");
-    legend4->AddEntry("linfrac_function", "funkce #frac{1}{ax}", "l");
+    legend4->AddEntry("linfrac_function", "funkce #sqrt{#frac{1}{ax}}", "l");
     legend4 -> Draw("same");
     legend4->SetTextSize(0.02);
 
